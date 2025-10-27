@@ -1,0 +1,161 @@
+{
+  "titulo": "Saúde Mental & Tecnologia – Quiz",
+  "descricao": "Responda às 10 perguntas e veja seu perfil de equilíbrio digital, com dicas práticas.",
+  "tema": "#2563eb",
+  "fundo": "linear-gradient(135deg,#2563eb,#06b6d4)",
+  "perfis": [
+    { "id": "S", "nome": "Equilíbrio Saudável", "descricao": "Você demonstra uma relação consciente e equilibrada com a tecnologia." },
+    { "id": "V", "nome": "Atenção/Alerta", "descricao": "Há sinais de desequilíbrio pontual. Pequenos ajustes podem evitar desgaste." },
+    { "id": "O", "nome": "Sobrecarga Digital", "descricao": "Estresse, sono e foco podem estar sendo impactados pelo uso de telas." },
+    { "id": "R", "nome": "Risco de Dependência", "descricao": "O uso de tecnologia está dominando rotinas essenciais e emoções." }
+  ],
+  "perguntas": [
+    {
+      "id": "p1",
+      "texto": "Ao acordar, o que você faz primeiro?",
+      "opcoes": [
+        { "texto": "Alongo, água e só depois olho o celular", "peso": {"S": 2} },
+        { "texto": "Olho mensagens rapidamente", "peso": {"V": 2} },
+        { "texto": "Fico deitado(a) no celular por 15–30 min", "peso": {"O": 2} },
+        { "texto": "Celular por 30+ min antes de levantar", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p2",
+      "texto": "Quanto tempo de tela você estima por dia (fora trabalho/estudo)?",
+      "opcoes": [
+        { "texto": "Até 1 h", "peso": {"S": 2} },
+        { "texto": "1–2 h", "peso": {"V": 2} },
+        { "texto": "2–4 h", "peso": {"O": 2} },
+        { "texto": "4 h ou mais", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p3",
+      "texto": "Durante tarefas importantes, como lida com notificações?",
+      "opcoes": [
+        { "texto": "Modo foco/‘Não perturbe’ ativado", "peso": {"S": 2} },
+        { "texto": "Silencio as mais barulhentas", "peso": {"V": 2} },
+        { "texto": "Olho sempre que chega", "peso": {"O": 2} },
+        { "texto": "Não consigo ignorar nenhuma", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p4",
+      "texto": "Seu sono nas últimas semanas foi…",
+      "opcoes": [
+        { "texto": "Regular e reparador", "peso": {"S": 2} },
+        { "texto": "Levemente irregular", "peso": {"V": 2} },
+        { "texto": "Irregular e com telas à noite", "peso": {"O": 2} },
+        { "texto": "Insônia frequente e uso de tela na cama", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p5",
+      "texto": "Como você se sente ao ficar algumas horas sem celular/redes?",
+      "opcoes": [
+        { "texto": "Tranquilo(a), aproveito o offline", "peso": {"S": 2} },
+        { "texto": "Um pouco ansioso(a), mas dá", "peso": {"V": 2} },
+        { "texto": "Ansioso(a) e fico pensando no que perdi", "peso": {"O": 2} },
+        { "texto": "Muito desconfortável/irritado(a)", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p6",
+      "texto": "No trabalho/estudo, a tecnologia…",
+      "opcoes": [
+        { "texto": "Ajuda e eu a gerencio bem", "peso": {"S": 2} },
+        { "texto": "Ajuda, mas me distrai às vezes", "peso": {"V": 2} },
+        { "texto": "Me distrai bastante", "peso": {"O": 2} },
+        { "texto": "Prejudica muito meu desempenho", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p7",
+      "texto": "Em momentos de estresse/tristeza, você recorre a telas…",
+      "opcoes": [
+        { "texto": "Raramente; procuro outras estratégias", "peso": {"S": 2} },
+        { "texto": "Às vezes, mas com limite", "peso": {"V": 2} },
+        { "texto": "Com frequência para ‘escapar’", "peso": {"O": 2} },
+        { "texto": "Quase sempre; é meu principal refúgio", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p8",
+      "texto": "Você faz pausas digitais ao longo do dia?",
+      "opcoes": [
+        { "texto": "Sim, programadas (pomodoro, pausas visuais)", "peso": {"S": 2} },
+        { "texto": "Ocasionalmente", "peso": {"V": 2} },
+        { "texto": "Quase nunca", "peso": {"O": 2} },
+        { "texto": "Nunca", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p9",
+      "texto": "Seu uso de redes sociais nos últimos 30 dias…",
+      "opcoes": [
+        { "texto": "Intencional (tempo e objetivos claros)", "peso": {"S": 2} },
+        { "texto": "Meio no automático às vezes", "peso": {"V": 2} },
+        { "texto": "Muito automático e prolongado", "peso": {"O": 2} },
+        { "texto": "Compulsivo, sinto perda de controle", "peso": {"R": 2} }
+      ]
+    },
+    {
+      "id": "p10",
+      "texto": "Como está seu offline (atividade física, lazer, relações)?",
+      "opcoes": [
+        { "texto": "Ativo(a) e presente; boas conexões", "peso": {"S": 2} },
+        { "texto": "Ok, poderia melhorar", "peso": {"V": 2} },
+        { "texto": "Empobrecido por causa de telas", "peso": {"O": 2} },
+        { "texto": "Quase inexistente; tudo gira em torno do online", "peso": {"R": 2} }
+      ]
+    }
+  ],
+  "resultadoGeral": {
+    "rodape": "*Este é um resultado orientativo e não substitui acompanhamento profissional.*"
+  },
+  "resultados": {
+    "S": {
+      "titulo": "Você está em bom equilíbrio digital 👏",
+      "descricao": "Seu uso de tecnologia é consciente. Você protege seu sono, foco e relações.",
+      "imagem": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop",
+      "dicas": [
+        "Mantenha as rotinas de foco (não perturbe, horários sem tela).",
+        "Reforce hobbies offline semanalmente.",
+        "Revise notificações a cada mês para evitar ‘deslizes’."
+      ]
+    },
+    "V": {
+      "titulo": "Quase lá — pequenos ajustes fazem diferença ✨",
+      "descricao": "Existem sinais pontuais de desequilíbrio. Ajustes simples previnem sobrecarga.",
+      "imagem": "https://images.unsplash.com/photo-1508780709619-79562169bc64?q=80&w=800&auto=format&fit=crop",
+      "dicas": [
+        "Defina 1 bloco diário sem notificações (30–60 min).",
+        "Evite telas 60 min antes de dormir; deixe o celular longe da cama.",
+        "Use ‘intenção de uso’: abra o app já sabendo o que vai fazer e por quanto tempo."
+      ]
+    },
+    "O": {
+      "titulo": "Sobrecarga digital — hora de reajustar 🧭",
+      "descricao": "Sono, foco ou humor podem estar sendo afetados. Um plano simples já ajuda muito.",
+      "imagem": "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=800&auto=format&fit=crop",
+      "dicas": [
+        "Regra 20-20-20: a cada 20 min, 20 s olhando a 6 m de distância.",
+        "‘Zona sem telas’ à noite (últimos 60–90 min do dia).",
+        "Remova notificações não essenciais e tire atalhos da tela inicial.",
+        "Programe 3 encontros/passeios offline na semana."
+      ]
+    },
+    "R": {
+      "titulo": "Risco de dependência — procure suporte e reequilíbrio 💙",
+      "descricao": "O uso de tecnologia está dominando tempo e emoções. Intervenções ajudam a retomar controle.",
+      "imagem": "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=800&auto=format&fit=crop",
+      "dicas": [
+        "Combine ‘janelas de uso’ (ex.: 2–3 blocos/dia) e cumpra horários sem tela.",
+        "Substitua o ‘scroll’ por atividades reguladoras: caminhada, respiração 4-7-8, conversar com alguém.",
+        "Se possível, busque apoio profissional (psicoterapia) para estratégias personalizadas.",
+        "Avise amigos/família sobre seu plano para ganhar apoio e reduzir recaídas."
+      ]
+    }
+  }
+}

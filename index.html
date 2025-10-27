@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saúde Mental & Tecnologia – Quiz</title>
+  <meta name="description" content="Quiz sobre saúde mental e tecnologia. Responda 10 perguntas e receba um resultado com orientações personalizadas."/>
+  <style>
+    :root {
+      --cor: #4f46e5;             /* atualizado pelo config.json */
+      --cor-escura: #3730a3;
+      --bg: linear-gradient(135deg,#4f46e5,#22d3ee); /* atualizado pelo config.json */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, 'Noto Sans';
+      color: #111; background: #f6f7fb;
+    }
+    .hero {
+      min-height: 45vh; display: grid; place-items: center; text-align: center;
+      background-image: var(--bg); background-size: cover; background-position: center;
+      position: relative; color: #fff;
+    }
+    .hero::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+    .hero > * { position: relative; z-index: 1; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 2.2rem; margin: 0 0 8px; }
+    p.lead { margin: 0; opacity: .9; }
+
+    .card { background: #fff; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; background: var(--cor); color: #fff; border: 0; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; }
+    .btn:hover { filter: brightness(.95); }
+    .btn.secondary { background: #e9eaf6; color: #1f2356; }
+    .progress { height: 10px; background: #eef0fb; border-radius: 999px; overflow: hidden; }
+    .progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cor), var(--cor-escura)); transition: width .35s ease; }
+    .q-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 12px; }
+    .opcoes { display: grid; gap: 10px; margin: 14px 0 4px; }
+    .opcao { border: 1px solid #e8e8f3; border-radius: 12px; padding: 12px 14px; cursor: pointer; background: #fff; transition: border-color .2s; }
+    .opcao:hover { border-color: var(--cor); }
+    .opcao input { appearance: none; width: 18px; height: 18px; border: 2px solid #aaa; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 10px; position: relative; }
+    .opcao input:checked { border-color: var(--cor); }
+    .opcao input:checked::after { content: ""; position: absolute; inset: 3px; background: var(--cor); border-radius: 50%; }
+
+    .resultado { display: grid; grid-template-columns: 160px 1fr; gap: 18px; align-items: start; }
+    .resultado img { width: 100%; height: 160px; object-fit: cover; border-radius: 14px; }
+    .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-size:.85rem; background:#eef0ff; color:#1f2356; margin-bottom:6px; }
+
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    @media (max-width: 720px) { .resultado { grid-template-columns: 1fr; } .grid-2{grid-template-columns:1fr;} }
+
+    /* QR */
+    #qr { margin-top:12px; }
+  </style>
+</head>
+<body>
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <h1 id="titulo">Quiz</h1>
+      <p class="lead" id="descricao"></p>
+      <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+        <button class="btn" id="btn-começar">Começar</button>
+        <button class="btn secondary" id="btn-qr">Mostrar QR do site</button>
+      </div>
+      <div id="qr" aria-label="QR code do link"></div>
+    </div>
+  </section>
+
+  <div class="wrap" style="margin-top:-36px">
+    <div class="card" id="quiz-card" aria-live="polite">
+      <div class="progress" aria-label="Progresso do quiz"><div id="barra"></div></div>
+      <div id="conteudo" style="margin-top:16px"></div>
+      <div class="grid-2" style="margin-top:10px">
+        <button class="btn secondary" id="btn-voltar" disabled>Voltar</button>
+        <button class="btn" id="btn-proximo">Próximo</button>
+      </div>
+      <p style="color:#6b7280; font-size:.9rem; margin-top:8px">Conteúdo informativo. Não substitui avaliação profissional.</p>
+    </div>
+  </div>
+
+  <!-- QRCode lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
+
+    let CFG = null;   // config carregado do config.json
+    let passo = 0;    // índice da pergunta atual
+    let respostas = {}; // { idPergunta: indiceOpcao }
+
+    const els = {
+      titulo: $('#titulo'),
+      descricao: $('#descricao'),
+      barra: $('#barra'),
+      conteudo: $('#conteudo'),
+      btnComecar: $('#btn-começar'),
+      btnVoltar: $('#btn-voltar'),
+      btnProximo: $('#btn-proximo'),
+      hero: $('#hero'),
+      btnQR: $('#btn-qr'),
+      qr: $('#qr')
+    };
+
+    // Carrega config.json (só edita quem tem permissão no repositório)
+    async function carregarConfig() {
+      const resp = await fetch('config.json', { cache: 'no-store' });
+      if (!resp.ok) throw new Error('Não foi possível carregar config.json');
+      return resp.json();
+    }
+
+    function aplicarTema() {
+      document.documentElement.style.setProperty('--cor', CFG.tema || '#4f46e5');
+      document.documentElement.style.setProperty('--cor-escura', shade(CFG.tema || '#4f46e5', -20));
+      document.documentElement.style.setProperty('--bg', CFG.fundo || 'linear-gradient(135deg,#4f46e5,#22d3ee)');
+      els.titulo.textContent = CFG.titulo || 'Quiz';
+      els.descricao.textContent = CFG.descricao || '';
+    }
+
+    function render() {
+      const total = CFG.perguntas.length;
+      const pct = Math.round((Math.min(passo, total) / total) * 100);
+      els.barra.style.width = pct + '%';
+
+      if (passo >= total) { return mostrarResultado(); }
+
+      const p = CFG.perguntas[passo];
+      const ja = respostas[p.id];
+      els.conteudo.innerHTML = `
+        <div class="q-title">${passo+1}/${total} — ${escapeHtml(p.texto)}</div>
+        <div class="opcoes" role="group" aria-label="Opções da pergunta ${passo+1}">
+          ${p.opcoes.map((op, i) => `
+            <label class="opcao">
+              <input type="radio" name="q${p.id}" ${ja===i?'checked':''} data-indice="${i}" aria-label="${escapeHtml(op.texto)}" />
+              <span>${escapeHtml(op.texto)}</span>
+            </label>
+          `).join('')}
+        </div>
+      `;
+
+      els.btnProximo.textContent = passo === total-1 ? 'Finalizar' : 'Próximo';
+      els.btnVoltar.disabled = passo === 0;
+
+      $$('.opcao input', els.conteudo).forEach(inp => {
+        inp.addEventListener('change', () => { respostas[p.id] = Number(inp.dataset.indice); });
+      });
+    }
+
+    function mostrarResultado() {
+      const placar = Object.fromEntries(CFG.perfis.map(px => [px.id, 0]));
+      for (const perg of CFG.perguntas) {
+        const idx = respostas[perg.id];
+        if (typeof idx !== 'number') continue;
+        const op = perg.opcoes[idx];
+        if (!op || !op.peso) continue;
+        for (const [perfil, pts] of Object.entries(op.peso)) {
+          if (placar[perfil] != null) placar[perfil] += Number(pts) || 0;
+        }
+      }
+      const vencedorId = [...CFG.perfis].sort((a,b)=> (placar[b.id]-placar[a.id]) )[0].id;
+      const perfil = CFG.perfis.find(p=>p.id===vencedorId);
+      const res = CFG.resultados?.[vencedorId] || {};
+
+      els.conteudo.innerHTML = `
+        <div class="resultado">
+          ${res.imagem ? `<img alt="Imagem ilustrativa" src="${escapeAttr(res.imagem)}">` : ''}
+          <div>
+            <span class="badge">${escapeHtml(perfil?.nome || 'Resultado')}</span>
+            <h2 style="margin:4px 0 8px">${escapeHtml(res.titulo || 'Seu resultado')}</h2>
+            <p>${escapeHtml(res.descricao || perfil?.descricao || '')}</p>
+            ${Array.isArray(res.dicas) && res.dicas.length ? `<div style="margin-top:10px"><strong>Estratégias e próximos passos:</strong><ul>${res.dicas.map(d=>`<li>${escapeHtml(d)}</li>`).join('')}</ul></div>`:''}
+            ${CFG.resultadoGeral?.rodape ? `<p style="margin-top:10px;color:#6b7280">${escapeHtml(CFG.resultadoGeral.rodape)}</p>` : ''}
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+              <button class="btn" id="refazer">Refazer</button>
+              <button class="btn secondary" id="ver-pontos">Ver pontuações</button>
+            </div>
+            <pre id="placar" style="display:none; background:#f8f9ff; padding:10px; border-radius:10px; overflow:auto; margin-top:10px">${escapeHtml(JSON.stringify(placar, null, 2))}</pre>
+          </div>
+        </div>
+      `;
+
+      $('#refazer').addEventListener('click', () => { passo=0; respostas={}; render(); window.scrollTo({top:0, behavior:'smooth'}); });
+      $('#ver-pontos').addEventListener('click', () => { const pre=$('#placar'); pre.style.display = pre.style.display==='none'?'block':'none'; });
+    }
+
+    // Navegação
+    document.addEventListener('click', (e) => {
+      if (e.target === els.btnProximo) {
+        const total = CFG.perguntas.length;
+        if (passo >= total) return;
+        const p = CFG.perguntas[passo];
+        if (respostas[p.id] == null) { alert('Escolha uma opção para continuar.'); return; }
+        passo++; render();
+      }
+      if (e.target === els.btnVoltar) { if (passo>0) { passo--; render(); } }
+      if (e.target === els.btnComecar) { document.getElementById('quiz-card').scrollIntoView({behavior:'smooth'}); }
+    });
+
+    // QR code do link da página
+    els.btnQR.addEventListener('click', () => {
+      els.qr.innerHTML = '';
+      new QRCode(els.qr, { text: window.location.href, width: 180, height: 180 });
+    });
+
+    // Helpers
+    function escapeHtml(str='') { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+    function escapeAttr(str='') { return String(str).replace(/"/g, '&quot;'); }
+    function toColorInput(hex) { if (!hex) return '#4f46e5'; if (/^#([\da-f]{3})$/i.test(hex)) return '#'+hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3]; return hex; }
+    function shade(hex, percent){ hex = toColorInput(hex).replace('#',''); const num = parseInt(hex,16); let r=(num>>16)+percent, g=((num>>8)&0x00FF)+percent, b=(num&0x0000FF)+percent; r=Math.max(Math.min(255,r),0); g=Math.max(Math.min(255,g),0); b=Math.max(Math.min(255,b),0); return '#' + (1<<24 | r<<16 | g<<8 | b).toString(16).slice(1); }
+
+    // Boot
+    (async function init(){
+      try {
+        CFG = await carregarConfig();
+        aplicarTema();
+        try { respostas = JSON.parse(sessionStorage.getItem('quiz-respostas')||'{}'); } catch {}
+        render();
+      } catch (e) {
+        console.error(e);
+        els.conteudo.innerHTML = '<p>Erro ao carregar a configuração. Verifique o <code>config.json</code>.</p>';
+      }
+    })();
+
+    // salva respostas da sessão
+    window.addEventListener('beforeunload', () => { sessionStorage.setItem('quiz-respostas', JSON.stringify(respostas)); });
+  </script>
+</body>
+</html>
