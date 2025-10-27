@@ -7,9 +7,9 @@
   <meta name="description" content="Quiz sobre saúde mental e tecnologia. Responda 10 perguntas e receba um resultado com orientações personalizadas."/>
   <style>
     :root {
-      --cor: #4f46e5;             /* atualizado pelo config.json */
-      --cor-escura: #3730a3;
-      --bg: linear-gradient(135deg,#4f46e5,#22d3ee); /* atualizado pelo config.json */
+      --cor: #2563eb;             /* atualizado pelo config.json */
+      --cor-escura: #1d4ed8;
+      --bg: linear-gradient(135deg,#2563eb,#06b6d4); /* atualizado pelo config.json */
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -49,8 +49,7 @@
     .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
     @media (max-width: 720px) { .resultado { grid-template-columns: 1fr; } .grid-2{grid-template-columns:1fr;} }
 
-    /* QR */
-    #qr { margin-top:12px; }
+    #qr { margin-top:12px; transition: all .3s ease; }
   </style>
 </head>
 <body>
@@ -85,9 +84,10 @@
     const $ = (sel, el=document) => el.querySelector(sel);
     const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
 
-    let CFG = null;   // config carregado do config.json
-    let passo = 0;    // índice da pergunta atual
-    let respostas = {}; // { idPergunta: indiceOpcao }
+    let CFG = null;
+    let passo = 0;
+    let respostas = {};
+    let qrVisivel = false;
 
     const els = {
       titulo: $('#titulo'),
@@ -97,12 +97,10 @@
       btnComecar: $('#btn-começar'),
       btnVoltar: $('#btn-voltar'),
       btnProximo: $('#btn-proximo'),
-      hero: $('#hero'),
       btnQR: $('#btn-qr'),
       qr: $('#qr')
     };
 
-    // Carrega config.json (só edita quem tem permissão no repositório)
     async function carregarConfig() {
       const resp = await fetch('config.json', { cache: 'no-store' });
       if (!resp.ok) throw new Error('Não foi possível carregar config.json');
@@ -110,9 +108,9 @@
     }
 
     function aplicarTema() {
-      document.documentElement.style.setProperty('--cor', CFG.tema || '#4f46e5');
-      document.documentElement.style.setProperty('--cor-escura', shade(CFG.tema || '#4f46e5', -20));
-      document.documentElement.style.setProperty('--bg', CFG.fundo || 'linear-gradient(135deg,#4f46e5,#22d3ee)');
+      document.documentElement.style.setProperty('--cor', CFG.tema || '#2563eb');
+      document.documentElement.style.setProperty('--cor-escura', shade(CFG.tema || '#2563eb', -20));
+      document.documentElement.style.setProperty('--bg', CFG.fundo || 'linear-gradient(135deg,#2563eb,#06b6d4)');
       els.titulo.textContent = CFG.titulo || 'Quiz';
       els.descricao.textContent = CFG.descricao || '';
     }
@@ -137,10 +135,8 @@
           `).join('')}
         </div>
       `;
-
       els.btnProximo.textContent = passo === total-1 ? 'Finalizar' : 'Próximo';
       els.btnVoltar.disabled = passo === 0;
-
       $$('.opcao input', els.conteudo).forEach(inp => {
         inp.addEventListener('change', () => { respostas[p.id] = Number(inp.dataset.indice); });
       });
@@ -178,12 +174,10 @@
           </div>
         </div>
       `;
-
       $('#refazer').addEventListener('click', () => { passo=0; respostas={}; render(); window.scrollTo({top:0, behavior:'smooth'}); });
       $('#ver-pontos').addEventListener('click', () => { const pre=$('#placar'); pre.style.display = pre.style.display==='none'?'block':'none'; });
     }
 
-    // Navegação
     document.addEventListener('click', (e) => {
       if (e.target === els.btnProximo) {
         const total = CFG.perguntas.length;
@@ -196,19 +190,25 @@
       if (e.target === els.btnComecar) { document.getElementById('quiz-card').scrollIntoView({behavior:'smooth'}); }
     });
 
-    // QR code do link da página
+    // ✅ Mostrar/Ocultar QR code
     els.btnQR.addEventListener('click', () => {
-      els.qr.innerHTML = '';
-      new QRCode(els.qr, { text: window.location.href, width: 180, height: 180 });
+      if (!qrVisivel) {
+        els.qr.innerHTML = '';
+        new QRCode(els.qr, { text: window.location.href, width: 180, height: 180 });
+        els.btnQR.textContent = 'Ocultar QR do site';
+        qrVisivel = true;
+      } else {
+        els.qr.innerHTML = '';
+        els.btnQR.textContent = 'Mostrar QR do site';
+        qrVisivel = false;
+      }
     });
 
-    // Helpers
     function escapeHtml(str='') { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
     function escapeAttr(str='') { return String(str).replace(/"/g, '&quot;'); }
-    function toColorInput(hex) { if (!hex) return '#4f46e5'; if (/^#([\da-f]{3})$/i.test(hex)) return '#'+hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3]; return hex; }
+    function toColorInput(hex) { if (!hex) return '#2563eb'; if (/^#([\\da-f]{3})$/i.test(hex)) return '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3]; return hex; }
     function shade(hex, percent){ hex = toColorInput(hex).replace('#',''); const num = parseInt(hex,16); let r=(num>>16)+percent, g=((num>>8)&0x00FF)+percent, b=(num&0x0000FF)+percent; r=Math.max(Math.min(255,r),0); g=Math.max(Math.min(255,g),0); b=Math.max(Math.min(255,b),0); return '#' + (1<<24 | r<<16 | g<<8 | b).toString(16).slice(1); }
 
-    // Boot
     (async function init(){
       try {
         CFG = await carregarConfig();
@@ -221,7 +221,6 @@
       }
     })();
 
-    // salva respostas da sessão
     window.addEventListener('beforeunload', () => { sessionStorage.setItem('quiz-respostas', JSON.stringify(respostas)); });
   </script>
 </body>
